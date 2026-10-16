@@ -8,7 +8,8 @@ One OpenCode plugin, three parts:
 
 1. **`publish_artifact` tool** — Publish any HTML file to a secret GitHub Gist and get back a stable link that updates in place.
 2. **`/board` command** — Dispatches the agent to use the `pr-board` skill for generating a curated PR board.
-3. **TUI footer link + toast** — Shows the latest published artifact link in the OpenCode footer, with a toast on each publish.
+3. **`/plan` command** — Dispatches the agent to use the `plan` skill for creating and publishing a plan or spec document for peer review.
+4. **TUI footer link + toast** — Shows the latest published artifact link in the OpenCode footer, with a toast on each publish.
 
 The GitHub Gist is the durable store; the stable SHA-less raw URL is the shared link.
 
@@ -136,8 +137,10 @@ opencode-plugin-artifacts/
 │   ├── index.ts         # Server plugin: publish_artifact tool + /board command
 │   └── tui.tsx          # TUI plugin: footer link + toast
 ├── skills/
-│   └── pr-board/
-│       └── SKILL.md     # PR Board skill — the board content workflow
+│   ├── pr-board/
+│   │   └── SKILL.md     # PR Board skill — the board content workflow
+│   └── plan/
+│       └── SKILL.md     # Plan skill — publish plans/specs for peer review
 └── test/
     ├── publish.test.ts  # 23 unit tests covering all paths
     └── live-publish.mjs # Live integration test (creates/updates/deletes real gist)

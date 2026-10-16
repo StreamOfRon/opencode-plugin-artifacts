@@ -57,6 +57,8 @@ Create a self-contained HTML file with:
 - **System font stack** — no Google Fonts
 - **Target < 200 KB** (hard limit 1 MB)
 
+**If you need any external assets** (icons, fonts, charting libraries, etc.), **always use a CDN link from [cdnjs](https://cdnjs.com/) or [jsdelivr](https://www.jsdelivr.com/) — never inline the content.** This keeps the artifact small and fast-loading for reviewers.
+
 **Section floor** (in order):
 1. **Header** — repo name, snapshot timestamp with age indicator, headline counts (open / ready / drafts / waiting-on-X / conflicts)
 2. **Needs attention** — narrative callouts (the value of the board)
