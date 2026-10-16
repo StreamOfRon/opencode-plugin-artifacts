@@ -15,5 +15,10 @@
   },
   "devDependencies": {
     "@types/node": "^22"
+  },
+  "pi": {
+    "skills": [
+      "./skills"
+    ]
   }
 }
