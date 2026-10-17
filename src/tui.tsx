@@ -28,13 +28,13 @@ export default Plugin.define({
     let hasFiredToast = false;
 
     const [latest, setLatest] = context.storage.store("lastPublished", {
-      initial: null,
+      initial: {},
     });
 
     const refresh = () => {
       context.storage.get("lastPublished").then((data) => {
         if (!data) {
-          setLatest(null);
+          setLatest({});
           return;
         }
         const d = data;
