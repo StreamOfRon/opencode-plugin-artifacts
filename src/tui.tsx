@@ -1,13 +1,25 @@
 import { Plugin } from "@opencode/plugin/tui";
-import { createSignal, onCleanup } from "solid-js";
+import {
+  createElement,
+  createTextNode,
+  setProp,
+  insertNode,
+} from "@opentui/solid";
 
 function LatestLink({ latest }) {
   if (!latest) return null;
-  return (
-    <text href={latest.renderURL} class="artifact-link">
-      {latest.slug} → {latest.renderURL.length > 64 ? latest.renderURL.slice(0, 61) + "..." : latest.renderURL}
-    </text>
+  const url =
+    latest.renderURL.length > 64
+      ? latest.renderURL.slice(0, 61) + "..."
+      : latest.renderURL;
+  const textEl = createElement("text");
+  setProp(textEl, "href", latest.renderURL);
+  setProp(textEl, "class", "artifact-link");
+  const textNode = createTextNode(
+    latest.slug + " \u2192 " + url
   );
+  insertNode(textEl, textNode);
+  return textEl;
 }
 
 export default Plugin.define({
@@ -53,18 +65,18 @@ export default Plugin.define({
     // Register footer slots
     context.ui.slot({
       append: "prompt.footer.status",
-      render: () => <LatestLink latest={latest} />,
+      render: () => LatestLink({ latest: latest() }),
     });
 
     context.ui.slot({
       append: "home.footer.status",
-      render: () => <LatestLink latest={latest} />,
+      render: () => LatestLink({ latest: latest() }),
     });
 
     // Cleanup on plugin unload
-    onCleanup(() => {
+    return () => {
       stop();
       clearInterval(timer);
-    });
+    };
   },
 });
