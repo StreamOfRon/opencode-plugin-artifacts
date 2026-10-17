@@ -6,8 +6,15 @@ import {
   insertNode,
 } from "@opentui/solid";
 
-function LatestLink({ latest }) {
-  if (!latest) return null;
+type LastPublished = {
+  slug?: string;
+  url?: string;
+  renderURL?: string;
+  at?: string;
+};
+
+function LatestLink({ latest }: { latest: LastPublished }) {
+  if (!latest.slug || !latest.renderURL) return null;
   const url =
     latest.renderURL.length > 64
       ? latest.renderURL.slice(0, 61) + "..."
@@ -15,9 +22,7 @@ function LatestLink({ latest }) {
   const textEl = createElement("text");
   setProp(textEl, "href", latest.renderURL);
   setProp(textEl, "class", "artifact-link");
-  const textNode = createTextNode(
-    latest.slug + " \u2192 " + url
-  );
+  const textNode = createTextNode(latest.slug + " \u2192 " + url);
   insertNode(textEl, textNode);
   return textEl;
 }
@@ -25,52 +30,45 @@ function LatestLink({ latest }) {
 export default Plugin.define({
   id: "opencode-artifacts",
   setup(context) {
-    let hasFiredToast = false;
-
-    const [latest, setLatest] = context.storage.store("lastPublished", {
+    // Live store (solid-js store proxy): read properties directly. Stays in
+    // sync with the server-side `lastPublished` writes across TUI instances,
+    // so no polling or local signal is needed.
+    const [latest] = context.storage.store<LastPublished>("lastPublished", {
       initial: {},
     });
 
-    const refresh = () => {
-      context.storage.get("lastPublished").then((data) => {
-        if (!data) {
-          setLatest({});
-          return;
-        }
-        const d = data;
-        // Only toast when `at` timestamp actually changed (new publish)
-        const prevAt = latest()?.at;
-        if (d && d.at && d.at !== prevAt) {
-          if (!hasFiredToast) {
-            hasFiredToast = true;
-            context.ui.toast.show({
-              title: "Artifact published",
-              message: d.renderURL || d.url,
-              variant: "success",
-            });
-          }
-        }
-        setLatest(d);
-      });
+    // Toast when a new publish lands; seed from persisted state so a TUI
+    // restart does not re-toast the previous session's artifact.
+    let lastToastAt = latest.at;
+    const checkToast = () => {
+      const at = latest.at;
+      if (at && at !== lastToastAt) {
+        lastToastAt = at;
+        context.ui.toast.show({
+          title: "Artifact published",
+          message: latest.renderURL || latest.url,
+          variant: "success",
+        });
+      }
     };
 
     // React to server events (debounced ~1s)
     const stop = context.data.listen(() => {
-      setTimeout(refresh, 1000);
+      setTimeout(checkToast, 1000);
     });
 
     // 5s interval backstop
-    const timer = setInterval(refresh, 5000);
+    const timer = setInterval(checkToast, 5000);
 
     // Register footer slots
     context.ui.slot({
       append: "prompt.footer.status",
-      render: () => LatestLink({ latest: latest() }),
+      render: () => LatestLink({ latest }),
     });
 
     context.ui.slot({
       append: "home.footer.status",
-      render: () => LatestLink({ latest: latest() }),
+      render: () => LatestLink({ latest }),
     });
 
     // Cleanup on plugin unload
