@@ -6,6 +6,7 @@
     "strict": true,
     "types": ["node"],
     "esModuleInterop": true,
+    "allowImportingTsExtensions": true,
     "skipLibCheck": true,
     "outDir": "./dist",
     "rootDir": ".",

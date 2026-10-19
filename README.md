@@ -106,7 +106,7 @@ After an update, viewers may see the previous snapshot for up to ~5 minutes (Git
 ### Unit tests
 
 ```
-node --experimental-strip-types --test test/publish.test.ts
+node --experimental-strip-types --test test/*.test.ts
 ```
 
 ### Live integration test
@@ -134,6 +134,7 @@ opencode-plugin-artifacts/
 ├── .gitignore
 ├── src/
 │   ├── publish.ts       # Pure module: token resolution, Gist REST calls, adopt-or-create
+│   ├── tool.ts          # Tool body: storage-backed mapping with graceful fallback
 │   ├── index.ts         # Server plugin: publish_artifact tool + /board command
 │   └── tui.tsx          # TUI plugin: footer link + toast
 ├── skills/
@@ -142,6 +143,7 @@ opencode-plugin-artifacts/
 │   └── plan/
 │       └── SKILL.md     # Plan skill — publish plans/specs for peer review
 └── test/
-    ├── publish.test.ts  # 23 unit tests covering all paths
+    ├── publish.test.ts  # Unit tests for the pure publish module
+    ├── tool.test.ts     # Tool tests, including missing-storage execution
     └── live-publish.mjs # Live integration test (creates/updates/deletes real gist)
 ```
